@@ -77,7 +77,7 @@ on:
         default: 'true'
       lxc_docker_support:
         description: '是否开启lxc/docker内核功能支持'
-        required: false
+        required: true
         type: boolean
         default: 'false'
       ccache_update:
@@ -90,6 +90,11 @@ on:
         required: true
         type: boolean
         default: 'false'
+      release:
+        description: '是否发布'
+        required: true
+        type: boolean
+        default: 'true'
       kernel_suffix:
         description: '内核后缀(留空默认,开头别加连字符,勿加空格等影响指令运行的保留字符)'
         required: false
@@ -239,9 +244,6 @@ jobs:
             echo "ccache缓存命中详情:"
             ccache -sv
           fi
-
-      - name: Setup tmate session
-        uses: mxschmitt/action-tmate@v3
 
       - name: 添加KernelSU
         id: ksu_version
@@ -529,6 +531,108 @@ jobs:
           echo "CONFIG_REKERNEL=y" >> ./common/arch/arm64/configs/gki_defconfig
           echo "CONFIG_REKERNEL_NETWORK=y" >> ./common/arch/arm64/configs/gki_defconfig
 
+      - name: 开启lxc/docker内核功能支持
+        if: inputs.lxc_docker_support
+        run: |
+          cd kernel_workspace
+
+          # IPC mechanisms (required for tools that rely on shared memory and IPC namespaces)
+          echo "CONFIG_SYSCTL=y" >> ./common/arch/arm64/configs/gki_defconfig
+          echo "CONFIG_SYSVIPC=y" >> ./common/arch/arm64/configs/gki_defconfig
+          echo "CONFIG_POSIX_MQUEUE=y" >> ./common/arch/arm64/configs/gki_defconfig
+
+          # Core namespace support (essential for isolation and running init systems)
+          echo "CONFIG_NAMESPACES=y" >> ./common/arch/arm64/configs/gki_defconfig
+          echo "CONFIG_PID_NS=y" >> ./common/arch/arm64/configs/gki_defconfig
+          echo "CONFIG_UTS_NS=y" >> ./common/arch/arm64/configs/gki_defconfig
+          echo "CONFIG_IPC_NS=y" >> ./common/arch/arm64/configs/gki_defconfig
+
+          # Seccomp support (enables syscall filtering and security hardening)
+          echo "CONFIG_SECCOMP=y" >> ./common/arch/arm64/configs/gki_defconfig
+          echo "CONFIG_SECCOMP_FILTER=y" >> ./common/arch/arm64/configs/gki_defconfig
+
+          # Control groups support (required for systemd and resource accounting)
+          echo "CONFIG_CGROUPS=y" >> ./common/arch/arm64/configs/gki_defconfig
+          echo "CONFIG_CGROUP_DEVICE=y" >> ./common/arch/arm64/configs/gki_defconfig
+          echo "CONFIG_CGROUP_PIDS=y" >> ./common/arch/arm64/configs/gki_defconfig
+          echo "CONFIG_MEMCG=y" >> ./common/arch/arm64/configs/gki_defconfig
+          echo "CONFIG_CGROUP_SCHED=y" >> ./common/arch/arm64/configs/gki_defconfig
+          echo "CONFIG_FAIR_GROUP_SCHED=y" >> ./common/arch/arm64/configs/gki_defconfig
+          echo "CONFIG_CGROUP_FREEZER=y" >> ./common/arch/arm64/configs/gki_defconfig
+          echo "CONFIG_CGROUP_NET_PRIO=y" >> ./common/arch/arm64/configs/gki_defconfig
+
+          # Device filesystem support (enables hardware access when --hw-access is enabled)
+          echo "CONFIG_DEVTMPFS=y" >> ./common/arch/arm64/configs/gki_defconfig
+
+          # Overlay filesystem support (required for volatile mode)
+          echo "CONFIG_OVERLAY_FS=y" >> ./common/arch/arm64/configs/gki_defconfig
+
+          # Firmware loading support (optional, used when --hw-access is enabled)
+          echo "CONFIG_FW_LOADER=y" >> ./common/arch/arm64/configs/gki_defconfig
+          echo "CONFIG_FW_LOADER_USER_HELPER=y" >> ./common/arch/arm64/configs/gki_defconfig
+          echo "CONFIG_FW_LOADER_COMPRESS=y" >> ./common/arch/arm64/configs/gki_defconfig
+
+          # Droidspaces Network Isolation Support - NAT/none modes
+          # Network namespace isolation
+          echo "CONFIG_NET_NS=y" >> ./common/arch/arm64/configs/gki_defconfig
+
+          # Virtual ethernet pairs
+          echo "CONFIG_VETH=y" >> ./common/arch/arm64/configs/gki_defconfig
+
+          # Bridge device
+          echo "CONFIG_BRIDGE=y" >> ./common/arch/arm64/configs/gki_defconfig
+
+          # Netfilter core
+          echo "CONFIG_NETFILTER=y" >> ./common/arch/arm64/configs/gki_defconfig
+          echo "CONFIG_BRIDGE_NETFILTER=y" >> ./common/arch/arm64/configs/gki_defconfig
+          echo "CONFIG_NETFILTER_ADVANCED=y" >> ./common/arch/arm64/configs/gki_defconfig
+
+          # Connection tracking
+          echo "CONFIG_NF_CONNTRACK=y" >> ./common/arch/arm64/configs/gki_defconfig
+
+          # iptables infrastructure
+          echo "CONFIG_IP_NF_IPTABLES=y" >> ./common/arch/arm64/configs/gki_defconfig
+
+          # filter table
+          echo "CONFIG_IP_NF_FILTER=y" >> ./common/arch/arm64/configs/gki_defconfig
+
+          # NAT table
+          echo "CONFIG_NF_NAT=y" >> ./common/arch/arm64/configs/gki_defconfig
+
+          # NF Tables
+          echo "CONFIG_NF_TABLES=y" >> ./common/arch/arm64/configs/gki_defconfig
+
+          # MASQUERADE target (renamed in 5.2)
+          echo "CONFIG_IP_NF_TARGET_MASQUERADE=y" >> ./common/arch/arm64/configs/gki_defconfig
+          echo "CONFIG_NETFILTER_XT_TARGET_MASQUERADE=y" >> ./common/arch/arm64/configs/gki_defconfig
+
+          # MSS clamping
+          echo "CONFIG_NETFILTER_XT_TARGET_TCPMSS=y" >> ./common/arch/arm64/configs/gki_defconfig
+
+          # addrtype match (required for --dst-type LOCAL DNAT port forwarding)
+          echo "CONFIG_NETFILTER_XT_MATCH_ADDRTYPE=y" >> ./common/arch/arm64/configs/gki_defconfig
+
+          # Conntrack netlink + NAT redirect (required for stateful NAT)
+          echo "CONFIG_NF_CONNTRACK_NETLINK=y" >> ./common/arch/arm64/configs/gki_defconfig
+          echo "CONFIG_NF_NAT_REDIRECT=y" >> ./common/arch/arm64/configs/gki_defconfig
+
+          # Policy routing
+          echo "CONFIG_IP_ADVANCED_ROUTER=y" >> ./common/arch/arm64/configs/gki_defconfig
+          echo "CONFIG_IP_MULTIPLE_TABLES=y" >> ./common/arch/arm64/configs/gki_defconfig
+
+          # Disable this on older kernels to make internet work
+          echo "CONFIG_ANDROID_PARANOID_NETWORK=n" >> ./common/arch/arm64/configs/gki_defconfig
+
+          cd common
+          wget https://github.com/$GITHUB_REPOSITORY/raw/refs/heads/$GITHUB_REF_NAME/lxc_docker_patch/01.disable_crc_checks_for_lkms.patch
+          patch -p1 -F 3 < 01.disable_crc_checks_for_lkms.patch
+          wget https://github.com/$GITHUB_REPOSITORY/raw/refs/heads/$GITHUB_REF_NAME/lxc_docker_patch/02.fix_restore_cgroup_file_prefix_handling.patch
+          patch -p1 -F 3 < 02.fix_restore_cgroup_file_prefix_handling.patch
+          wget https://github.com/$GITHUB_REPOSITORY/raw/refs/heads/$GITHUB_REF_NAME/lxc_docker_patch/03.5.15+_use_android_abi_padding_for_posix_mqueue.patch
+          patch -p1 -F 3 < 03.5.15+_use_android_abi_padding_for_posix_mqueue.patch
+          wget https://github.com/$GITHUB_REPOSITORY/raw/refs/heads/$GITHUB_REF_NAME/lxc_docker_patch/04.use_android_abi_padding_for_sysvipc_task_struct.patch
+          patch -p1 -F 3 < 04.use_android_abi_padding_for_sysvipc_task_struct.patch
+
       - name: 启用内核级基带保护
         if: inputs.baseband_guard
         run: |
@@ -797,7 +901,15 @@ jobs:
           path: ${{ github.workspace }}/kernel_workspace/AnyKernel*.zip
           archive: false
 
+      - name: 上传 Image 工件
+        uses: actions/upload-artifact@v7
+        with:
+          name: Image
+          path: ${{ github.workspace }}/kernel_workspace/common/out/arch/arm64/boot/Image
+          archive: false
+
   release:
+    if: inputs.release
     needs: build
     runs-on: ubuntu-latest
     permissions:
@@ -812,6 +924,12 @@ jobs:
           name: ${{ needs.build.outputs.ak3name }}
           path: ./release_zips
           skip-decompress: true
+      
+      - name: 下载 Image 工件
+        uses: actions/download-artifact@v8
+        with:
+          name: Image
+          path: ./release_zips
 
       - name: 设置环境变量
         run: |
@@ -885,3 +1003,4 @@ jobs:
           prerelease: false
           files: |
             release_zips/AnyKernel3_*.zip
+            release_zips/Image
