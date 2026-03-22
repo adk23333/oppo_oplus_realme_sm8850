@@ -547,9 +547,9 @@ jobs:
           echo "CONFIG_UTS_NS=y" >> ./common/arch/arm64/configs/gki_defconfig
           echo "CONFIG_IPC_NS=y" >> ./common/arch/arm64/configs/gki_defconfig
 
-          # # Seccomp support (enables syscall filtering and security hardening)
-          # echo "CONFIG_SECCOMP=y" >> ./common/arch/arm64/configs/gki_defconfig
-          # echo "CONFIG_SECCOMP_FILTER=y" >> ./common/arch/arm64/configs/gki_defconfig
+          # Seccomp support (enables syscall filtering and security hardening)
+          echo "CONFIG_SECCOMP=y" >> ./common/arch/arm64/configs/gki_defconfig
+          echo "CONFIG_SECCOMP_FILTER=y" >> ./common/arch/arm64/configs/gki_defconfig
 
           # Control groups support (required for systemd and resource accounting)
           echo "CONFIG_CGROUPS=y" >> ./common/arch/arm64/configs/gki_defconfig
@@ -574,18 +574,18 @@ jobs:
 
           # # Droidspaces Network Isolation Support - NAT/none modes
           # # Network namespace isolation
-          echo "CONFIG_NET_NS=y" >> ./common/arch/arm64/configs/gki_defconfig
+          # echo "CONFIG_NET_NS=y" >> ./common/arch/arm64/configs/gki_defconfig
 
           # # Virtual ethernet pairs
           # echo "CONFIG_VETH=y" >> ./common/arch/arm64/configs/gki_defconfig
 
           # # Bridge device
-          echo "CONFIG_BRIDGE=y" >> ./common/arch/arm64/configs/gki_defconfig
+          # echo "CONFIG_BRIDGE=y" >> ./common/arch/arm64/configs/gki_defconfig
 
           # # Netfilter core
-          echo "CONFIG_NETFILTER=y" >> ./common/arch/arm64/configs/gki_defconfig
-          echo "CONFIG_BRIDGE_NETFILTER=y" >> ./common/arch/arm64/configs/gki_defconfig
-          echo "CONFIG_NETFILTER_ADVANCED=y" >> ./common/arch/arm64/configs/gki_defconfig
+          # echo "CONFIG_NETFILTER=y" >> ./common/arch/arm64/configs/gki_defconfig
+          # echo "CONFIG_BRIDGE_NETFILTER=y" >> ./common/arch/arm64/configs/gki_defconfig
+          # echo "CONFIG_NETFILTER_ADVANCED=y" >> ./common/arch/arm64/configs/gki_defconfig
 
           # # Connection tracking
           # echo "CONFIG_NF_CONNTRACK=y" >> ./common/arch/arm64/configs/gki_defconfig
