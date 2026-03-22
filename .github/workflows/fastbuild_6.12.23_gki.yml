@@ -554,8 +554,8 @@ jobs:
           # Control groups support (required for systemd and resource accounting)
           echo "CONFIG_CGROUPS=y" >> ./common/arch/arm64/configs/gki_defconfig
           echo "CONFIG_CGROUP_DEVICE=y" >> ./common/arch/arm64/configs/gki_defconfig
-          echo "CONFIG_CGROUP_PIDS=y" >> ./common/arch/arm64/configs/gki_defconfig
-          echo "CONFIG_MEMCG=y" >> ./common/arch/arm64/configs/gki_defconfig
+          # echo "CONFIG_CGROUP_PIDS=y" >> ./common/arch/arm64/configs/gki_defconfig
+          # echo "CONFIG_MEMCG=y" >> ./common/arch/arm64/configs/gki_defconfig
           # echo "CONFIG_CGROUP_SCHED=y" >> ./common/arch/arm64/configs/gki_defconfig
           # echo "CONFIG_FAIR_GROUP_SCHED=y" >> ./common/arch/arm64/configs/gki_defconfig
           # echo "CONFIG_CGROUP_FREEZER=y" >> ./common/arch/arm64/configs/gki_defconfig
