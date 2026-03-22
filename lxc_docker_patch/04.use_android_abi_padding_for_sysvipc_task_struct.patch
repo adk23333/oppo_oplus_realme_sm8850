@@ -1,20 +1,17 @@
-From 5ac1ce2212fbc4d7a1fa3b2a4eb3a2a956c5eb24 Mon Sep 17 00:00:00 2001
-From: TheKit <nekit1000@gmail.com>
-Date: Sat, 21 Mar 2026 00:20:16 +0530
-Subject: [PATCH] GKI: use Android ABI padding for SYSVIPC task_struct fields
+From c52aa6ad83ffe8dd3e3ea7e2f40bcdf1133c31cb Mon Sep 17 00:00:00 2001
+From: SanLiy <84434845+adk23333@users.noreply.github.com>
+Date: Sun, 22 Mar 2026 15:29:35 +0800
+Subject: [GKI PATCH 4/4] GKI: use Android ABI padding for SYSVIPC task_struct fields
 
-This allows to enable CONFIG_SYSVIPC=y without breaking module ABI
-
-Signed-off-by: ravindu644 <droidcasts@protonmail.com>
 ---
- kernel_platform/common/include/linux/sched.h | 15 +++++++++++++--
+ include/linux/sched.h | 15 +++++++++++++--
  1 file changed, 13 insertions(+), 2 deletions(-)
 
-diff --git a/kernel_platform/common/include/linux/sched.h b/kernel_platform/common/include/linux/sched.h
-index 9c315023a..467398210 100755
---- a/kernel_platform/common/include/linux/sched.h
-+++ b/kernel_platform/common/include/linux/sched.h
-@@ -1074,8 +1074,10 @@ struct task_struct {
+diff --git a/include/linux/sched.h b/include/linux/sched.h
+index da3984c175f36..2df121947511b 100644
+--- a/include/linux/sched.h
++++ b/include/linux/sched.h
+@@ -1192,8 +1192,10 @@ struct task_struct {
  	struct nameidata		*nameidata;
  
  #ifdef CONFIG_SYSVIPC
@@ -27,7 +24,7 @@ index 9c315023a..467398210 100755
  #endif
  #ifdef CONFIG_DETECT_HUNG_TASK
  	unsigned long			last_switch_count;
-@@ -1513,9 +1515,18 @@ struct task_struct {
+@@ -1655,9 +1657,18 @@ struct task_struct {
  	ANDROID_KABI_RESERVE(3);
  	ANDROID_KABI_RESERVE(4);
  	ANDROID_KABI_RESERVE(5);
@@ -44,5 +41,5 @@ index 9c315023a..467398210 100755
  	ANDROID_KABI_RESERVE(8);
 +#endif
  
+ #ifdef CONFIG_RV
  	/*
- 	 * New fields for task_struct should be added above here, so that
