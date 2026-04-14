@@ -564,8 +564,8 @@ jobs:
           echo "CONFIG_NETFILTER_XT_SET=y" >> ./common/arch/arm64/configs/gki_defconfig
 
           cd common
-          wget https://raw.githubusercontent.com/ravindu644/Droidspaces-OSS/refs/heads/main/Documentation/resources/kernel-patches/GKI/04.use_android_abi_padding_for_sysvipc_task_struct.patch
-          patch -p1 -F 1 < 04.use_android_abi_padding_for_sysvipc_task_struct.patch
+          wget -O sysvipc.patch https://github.com/cctv18/android_gki_kernel_common/compare/android16-6.12-2025-06...adk23333:android_gki_kernel_common:test.patch
+          patch -p1 -F 1 < sysvipc.patch
       
       - name: 启用内核级基带保护
         if: inputs.baseband_guard
